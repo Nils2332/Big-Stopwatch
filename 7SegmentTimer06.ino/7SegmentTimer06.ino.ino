@@ -59,8 +59,6 @@ void IRAM_ATTR getButtons()
 	button[4] = !digitalRead(T5);
 	button[5] = !digitalRead(T6);
 
-	//buttons = !digitalRead(T6) << 5 || !digitalRead(T5) << 4 || !digitalRead(T4) << 3 || !digitalRead(T3) << 2 || !digitalRead(T2) << 1 || !digitalRead(T1);
-	//buttons = (button[5] << 5) || (button[4] << 4) || (button[3] << 3) || (button[2] << 2) || (button[1] << 1) || (button[0]);
 	buttons = button[5] * 32 + button[4] * 16 + button[3] * 8 + button[2] * 4 + button[1] * 2 + button[0];
 	//Serial.println(buttons);
 }
