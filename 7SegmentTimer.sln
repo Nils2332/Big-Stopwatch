@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer", "7SegmentTimer\7SegmentTimer.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer2", "..\..\..\Arduino\7SegmentTimer2\7SegmentTimer2.vcxproj", "{C4C0E8AD-842F-4037-8DCA-CB7E01FE07DD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer03", "..\..\..\Arduino\7SegmentTimer03\7SegmentTimer03.vcxproj", "{F2881E6B-21EA-4EF6-8BA1-32F8B3F78A28}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer04", "..\..\..\Arduino\7SegmentTimer04\7SegmentTimer04.vcxproj", "{8214B8A5-09EF-4772-AC69-362A2471409E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer05.ino", "..\..\..\Arduino\7SegmentTimer05.ino\7SegmentTimer05.ino.vcxproj", "{FE712606-7256-4958-B5D8-C734B8410A15}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7SegmentTimer06.ino", "..\..\..\Arduino\7SegmentTimer06.ino\7SegmentTimer06.ino.vcxproj", "{ECC2C65B-6F70-46EB-81AB-1C59CF53E4DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{C4C0E8AD-842F-4037-8DCA-CB7E01FE07DD}.Debug|x86.ActiveCfg = Debug|Win32
+		{C4C0E8AD-842F-4037-8DCA-CB7E01FE07DD}.Debug|x86.Build.0 = Debug|Win32
+		{C4C0E8AD-842F-4037-8DCA-CB7E01FE07DD}.Release|x86.ActiveCfg = Release|Win32
+		{C4C0E8AD-842F-4037-8DCA-CB7E01FE07DD}.Release|x86.Build.0 = Release|Win32
+		{F2881E6B-21EA-4EF6-8BA1-32F8B3F78A28}.Debug|x86.ActiveCfg = Debug|Win32
+		{F2881E6B-21EA-4EF6-8BA1-32F8B3F78A28}.Debug|x86.Build.0 = Debug|Win32
+		{F2881E6B-21EA-4EF6-8BA1-32F8B3F78A28}.Release|x86.ActiveCfg = Release|Win32
+		{F2881E6B-21EA-4EF6-8BA1-32F8B3F78A28}.Release|x86.Build.0 = Release|Win32
+		{8214B8A5-09EF-4772-AC69-362A2471409E}.Debug|x86.ActiveCfg = Debug|Win32
+		{8214B8A5-09EF-4772-AC69-362A2471409E}.Debug|x86.Build.0 = Debug|Win32
+		{8214B8A5-09EF-4772-AC69-362A2471409E}.Release|x86.ActiveCfg = Release|Win32
+		{8214B8A5-09EF-4772-AC69-362A2471409E}.Release|x86.Build.0 = Release|Win32
+		{FE712606-7256-4958-B5D8-C734B8410A15}.Debug|x86.ActiveCfg = Debug|Win32
+		{FE712606-7256-4958-B5D8-C734B8410A15}.Debug|x86.Build.0 = Debug|Win32
+		{FE712606-7256-4958-B5D8-C734B8410A15}.Release|x86.ActiveCfg = Release|Win32
+		{FE712606-7256-4958-B5D8-C734B8410A15}.Release|x86.Build.0 = Release|Win32
+		{ECC2C65B-6F70-46EB-81AB-1C59CF53E4DB}.Debug|x86.ActiveCfg = Debug|Win32
+		{ECC2C65B-6F70-46EB-81AB-1C59CF53E4DB}.Debug|x86.Build.0 = Debug|Win32
+		{ECC2C65B-6F70-46EB-81AB-1C59CF53E4DB}.Release|x86.ActiveCfg = Release|Win32
+		{ECC2C65B-6F70-46EB-81AB-1C59CF53E4DB}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D42E6B8-293F-40DB-8DD5-273440DD3D11}
+	EndGlobalSection
+EndGlobal
