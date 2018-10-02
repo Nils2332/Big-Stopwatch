@@ -3,16 +3,11 @@
 
 #include "LCD.h"
 #include "Arduino.h"
-//#include "esp32_digital_led_lib\esp32_digital_led_lib.h"
+//#include "WS2812.h"
 #include "esp32_digital_led_lib.h"
-//#include "nRF905.h"
 #include "math.h"
 #include "stdlib.h"
 
-
-cRGB value;
-cHSV HSVvalue;
-cRGB dataout;
 
 
 strand_t pStrand = { .rmtChannel = 0,.gpioNum = outputPin,.ledType = LED_WS2812B_V3,.brightLimit = 32,.numPixels = LEDCount,
@@ -135,7 +130,7 @@ cHSV RGBToHSV(uint8_t r, uint8_t g, uint8_t b) {
 	return HSV;
 }
 
-
+////edit next 3 function for different adresseble LED-libraries////
 LEDLCD::LEDLCD(uint8_t x)
 {
 	setcolorhsv(0, 240, 1, 1);
@@ -167,12 +162,42 @@ LEDLCD::LEDLCD(uint8_t x)
 
 }
 
-
 void LEDLCD::update()
 {
-	if(toupdate)
+	if (toupdate)
 		digitalLeds_updatePixels(&pStrand);
+	//LED.sync();
+
 	toupdate = 0;
+
+	if (animation == 1)
+		anidigits(decimaldot, animation++);
+
+	if (animation == 2)
+		anidigits2(decimaldot, animation++);
+}
+
+void LEDLCD::print(uint16_t LEDnumber, cRGB color)
+{
+	//LED.set_crgb_at(lightpoints[i][digitvalue[i]][j], color);		//light_WS2812\WS2812.h"
+	pStrand.pixels[LEDnumber] = pixelFromRGB(color.r, color.g, color.b);	//esp32_digital_led_lib.h
+}
+
+void LEDLCD::setcolorrgb(uint8_t number, uint8_t r, uint8_t g, uint8_t b)
+{
+	hsv[number] = RGBToHSV(r, g, b);
+
+	color[number].r = r;
+	color[number].g = g;
+	color[number].b = b;
+}
+void LEDLCD::setcolorhsv(uint8_t number, double h, double s, double v)
+{
+	color[number] = HSVToRGB(h, s, v);
+
+	hsv[number].H = h;
+	hsv[number].S = s;
+	hsv[number].V = v;
 }
 
 
@@ -181,98 +206,72 @@ void LEDLCD::show(float numberin)
 	getdigits(numberin);
 
 	if (0 <= numberin && numberin < 10)
-	{
-		printdigits(1);
-	}
+		clearALL(), printdigits(1);
 
 	if (10 <= numberin && numberin< 100)
-	{
-		if (lastnumber < 10)
-		{
-			clearALL();
-		}
-		printdigits(2);
-	}
+		clearALL(), printdigits(2);
 
 	if (100 <= numberin && numberin< 1000)
-	{
-		if (lastnumber < 100)
-		{
-			clearALL();
-		}
-		printdigits(3);
-	}
+		clearALL(), printdigits(3);
 
 	if (1000 <= numberin && numberin < 10000)
+		clearALL(), printdigits(0);
+
+	toupdate = 1;
+}
+void LEDLCD::printdigits(uint8_t dot)
+{
+	for (uint8_t i = 0; i < digits; i++)
 	{
-		if (lastnumber < 1000)
+		clear(i);
+		for (uint8_t j = 0; j < aninumberlenght[digitvalue[i]]; j++)
 		{
-			clearALL();
+			print(lightpoints[i][digitvalue[i]][j], color[0]);
+			//LED.set_crgb_at(lightpoints[i][digitvalue[i]][j], color[0]);
+			//pStrand.pixels[lightpoints[i][digitvalue[i]][j]] = pixelFromRGB(color[0].r, color[0].g, color[0].b);
 		}
-		printdigits(0);
+	}
+
+	if (dot > 0)
+	{
+		print(22 * dot - 1, color[1]);
+		//LED.set_crgb_at(22 * dot - 1, color[1]);
+		//pStrand.pixels[22 * dot - 1] = pixelFromRGB(color[1].r, color[1].g, color[1].b);
 	}
 
 	toupdate = 1;
 }
 
-void LEDLCD::anishow(float numberin)
+void LEDLCD::anishow(float numberin, uint8_t timescale)
 {
 	clearALL();
 	update();
 	getdigits(numberin);
 
 	if (0 <= numberin && numberin < 10)
-	{
-		anidigits(1);
-	}
+		anidigits(1, 0);
 
 	if (10 <= numberin && numberin< 100)
-	{
-		anidigits(2);
-	}
+		anidigits(2, 0);
 
 	if (100 <= numberin && numberin< 1000)
-	{
-		anidigits(3);
-	}
+		anidigits(3, 0);
 
 	if (1000 <= numberin && numberin < 10000)
-	{
-		anidigits(0);
-	}
-}
+		anidigits(0, 0);
 
-void LEDLCD::printdigits(uint8_t dot)
+	toupdate = 1;
+}
+void LEDLCD::anidigits(uint8_t dot, uint8_t step)	//decimal Dot, nextdot = refreshrate*timescale
 {
+	animation = step;
+	decimaldot = dot;
 	for (uint8_t i = 0; i < digits; i++)
 	{
-		//if (digitvalue[i] != lastdigitvalue[i])
-		//{
-		clear(i);
-		for (uint8_t j = 0; j < aninumberlenght[digitvalue[i]]; j++)
-		{
-			//LED.set_crgb_at(lightpoints[i][digitvalue[i]][j], color[0]);
-			pStrand.pixels[lightpoints[i][digitvalue[i]][j]] = pixelFromRGB(color[0].r, color[0].g, color[0].b);
-		}
-		//}
-	}
-
-	if (dot > 0)
-	{
-		//LED.set_crgb_at(22 * dot - 1, color[1]);
-		pStrand.pixels[22 * dot - 1] = pixelFromRGB(color[1].r, color[1].g, color[1].b);
-	}
-}
-
-void LEDLCD::anidigits(uint8_t dot)
-{
-	for (uint8_t i = 0; i < digits; i++)
-	{
-		//write dot to LED
+		
 		if (dot == i && i != 0)
 		{
-			//LED.set_crgb_at(22 * dot - 1, color[1]);
-			pStrand.pixels[22 * dot - 1] = pixelFromRGB(color[1].r, color[1].g, color[1].b);
+			print(22 * dot - 1, color[1]);
 		}
 		//write digits to LED
 		for (uint8_t j = 0; j < aninumberlenght[digitvalue[i]]; j++)
@@ -288,57 +287,35 @@ void LEDLCD::anidigits(uint8_t dot)
 	}
 }
 
-void LEDLCD::setcolorrgb(uint8_t number, uint8_t r, uint8_t g, uint8_t b)
-{
-	hsv[number] = RGBToHSV(r, g, b);
-
-	color[number].r = r;
-	color[number].g = g;
-	color[number].b = b;
-}
-
-void LEDLCD::setcolorhsv(uint8_t number, double h, double s, double v)
-{
-	color[number] = HSVToRGB(h, s, v);
-
-	hsv[number].H = h;
-	hsv[number].S = s;
-	hsv[number].V = v;
-}
-
-void LEDLCD::anishowcontinuous(float numberin, uint8_t step)
+void LEDLCD::anishowcontinuous(float numberin, uint8_t timescale)
 {
 	if (numberin != lastnumber)
 	{
 		getdigits(numberin);
 
 		if (0 <= numberin && numberin < 10)
-		{
-			anidigits2(1);
-		}
+			anidigits2(1, 0);
 
 		if (10 <= numberin && numberin < 100)
-		{
-			anidigits2(2);
-		}
+			anidigits2(2, 0);
 
 		if (100 <= numberin && numberin < 1000)
-		{
-			anidigits2(3);
-		}
+			anidigits2(3, 0);
 
 		if (1000 <= numberin && numberin < 10000)
-		{
-			anidigits2(4);
-		}
+			anidigits2(4, 0);
 	}
+
 	lastnumber = numberin;
 	for (uint8_t i = 0; i < digits; i++)
 		lastdigitvalue[i] = digitvalue[i];
-}
 
-void LEDLCD::anidigits2(uint8_t dot)
+	toupdate = 1;
+}
+void LEDLCD::anidigits2(uint8_t dot, uint8_t step)
 {
+	animation = step;
+	decimaldot = dot;
 	uint8_t n = dot + 1;
 	if (n > digits)
 		n = digits;
@@ -364,14 +341,27 @@ void LEDLCD::anidigits2(uint8_t dot)
 	}
 
 	if (dot < digits)
-		//LED.set_crgb_at((22 * dot) - 1, color[1]);
-		pStrand.pixels[(22 * dot) - 1] = pixelFromRGB(color[0].r, color[0].g, color[0].b);
+		print((22 * dot) - 1, color[1]);
+		//pStrand.pixels[(22 * dot) - 1] = pixelFromRGB(color[0].r, color[0].g, color[0].b);
 }
 
 void LEDLCD::clearALL()
 {
 	for (uint8_t i = 0; i < digits; i++)
 		clear(i), digitvalue[i] = 10;
+}
+
+void LEDLCD::clear(uint8_t digit)
+{
+	value.r = 0;
+	value.g = 0;
+	value.b = 0;
+	for (uint8_t i = 0; i < points; i++)
+	{
+		uint16_t pos = 22 * digit + i;
+		//LED.set_crgb_at(pos, value);
+		pStrand.pixels[pos] = pixelFromRGB(value.r, value.g, value.b);
+	}
 }
 
 void LEDLCD::setZero()
@@ -386,26 +376,9 @@ void LEDLCD::setZero()
 		value.b = 255;
 
 		for (uint8_t j = 0; j < aninumberlenght[digitvalue[i]]; j++)
-		{
-			//LED.set_crgb_at(lightpoints[i][digitvalue[i]][j], value);
-			pStrand.pixels[lightpoints[i][digitvalue[i]][j]] = pixelFromRGB(value.r, value.g, value.b);
-		}
-
+			print(lightpoints[i][digitvalue[i]][j], value);
 	}
-	digitalLeds_updatePixels(&pStrand);
-}
-
-void LEDLCD::clear(uint8_t digit)
-{
-	value.r = 0;
-	value.g = 0;
-	value.b = 0;
-	for (uint8_t i = 0; i < points; i++)
-	{
-		uint16_t pos = 22 * digit + i;
-		//LED.set_crgb_at(pos, value);
-		pStrand.pixels[pos] = pixelFromRGB(value.r, value.g, value.b);
-	}
+	toupdate = 1;
 }
 
 void LEDLCD::getdigits(float number)
@@ -443,13 +416,22 @@ void LEDLCD::getdigits(float number)
 	}
 }
 
-void LEDLCD::setPinRGB(uint16_t pin, uint8_t r, uint8_t g, uint8_t b)
+void LEDLCD::setLEDRGB(uint16_t number, uint8_t r, uint8_t g, uint8_t b)
 {
 
 }
 
-void LEDLCD::setPinHSV(uint16_t pin, double h, double s, double v)
+void LEDLCD::setLEDHSV(uint16_t number, double h, double s, double v)
 {
 
 }
 
+void LEDLCD::colorWheel(uint8_t timescale, uint8_t devider = 1)
+{
+
+}
+
+void LEDLCD::fadeout(uint8_t timescale, uint8_t devider = 1)
+{
+
+}
