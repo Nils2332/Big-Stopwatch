@@ -26,6 +26,7 @@ class LEDLCD
 	uint8_t digitvalue[digits] = { 0 };
 	uint8_t lastdigitvalue[digits] = { 0 };
 	uint16_t animationstep[digits] = { 0 };
+	uint8_t toupdate = 0;
 
 	//uint8_t animationsteps = 7;
 

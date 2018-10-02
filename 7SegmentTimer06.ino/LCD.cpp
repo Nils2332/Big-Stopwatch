@@ -170,14 +170,14 @@ LEDLCD::LEDLCD(uint8_t x)
 
 void LEDLCD::update()
 {
-	digitalLeds_updatePixels(&pStrand);
+	if(toupdate)
+		digitalLeds_updatePixels(&pStrand);
+	toupdate = 0;
 }
 
 
 void LEDLCD::show(float numberin)
 {
-	//if (numberin != lastnumber)
-	//{
 	getdigits(numberin);
 
 	if (0 <= numberin && numberin < 10)
@@ -211,13 +211,8 @@ void LEDLCD::show(float numberin)
 		}
 		printdigits(0);
 	}
-	//}
 
-	//lastnumber = numberin;
-	//for (uint8_t i = 0; i < digits; i++)
-	//	lastdigitvalue[i] = digitvalue[i];
-
-
+	toupdate = 1;
 }
 
 void LEDLCD::anishow(float numberin)

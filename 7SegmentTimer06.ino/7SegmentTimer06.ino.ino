@@ -107,7 +107,11 @@ void IRAM_ATTR getRadio()
 			}
 
 			//ACK Packet
-			uint8_t compare[NRF905_MAX_PAYLOAD] = { 65, 67, 75, 0 };
+			//uint8_t compare[NRF905_MAX_PAYLOAD] = { 65, 67, 75, 0 };
+			uint8_t compare[NRF905_MAX_PAYLOAD] = { 0 };
+			compare[0] = 65;
+			compare[1] = 67;
+			compare[2] = 75;
 			
 			for (uint8_t i = 0; i < NRF905_MAX_PAYLOAD; i++)
 				Serial.print(compare[i]);
