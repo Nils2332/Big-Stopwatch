@@ -43,6 +43,8 @@ float record = 0;
 
 uint8_t remotebutton = 0;
 
+uint8_t v_buttonshow = 0;
+
 hw_timer_t * timer1 = NULL;
 hw_timer_t * timer2 = NULL;
 hw_timer_t * timer3 = NULL;
@@ -90,6 +92,8 @@ void IRAM_ATTR getRadio()
 				Serial.print("Voltage: ");
 				V_Button[id - 1] = ((uint16_t)(buffer[3] << 8) | (buffer[4]));
 				V_Button[id - 1] = V_Button[id - 1] / 1000;
+
+				v_buttonshow = id;
 
 				Serial.println(V_Button[id - 1]);
 			}
@@ -153,7 +157,8 @@ void IRAM_ATTR updateDisplay()
 
 void setup()
 {
-	
+	analogSetAttenuation(ADC_6db);
+
 	//init Serial
 	Serial.begin(115200);
 
@@ -217,10 +222,46 @@ void setup()
 	LCD1.setcolorrgb(1, 0, 255, 0);
 
 	LCD1.clearALL();
+
+	uint8_t samples = 10;
+	uint16_t voltages[2][10] = { 0 };
+	V_Bat1 = 0;
+	V_Bat2 = 0;
+	for (uint8_t i = 0; i < samples; i++)
+	{
+		voltages[0][i] = analogRead(Batpin1);
+		voltages[1][i] = analogRead(Batpin2);
+		V_Bat1 = V_Bat1 + voltages[0][i];
+		V_Bat2 = V_Bat2 + voltages[1][i];
+	}
+
+	V_Bat1 = V_Bat1 / samples * 0.00298;
+	V_Bat2 = V_Bat2 / samples * 0.00541 - V_Bat1;
+
+	Serial.print("V1: \t");
+	Serial.println(V_Bat1);
+	Serial.print("V2: \t");
+	Serial.println(V_Bat2);
+
+	LCD1.show(V_Bat1);
+	update();
+	delay(1000);
+	LCD1.show(V_Bat2);
+	update();
+	delay(1000);
+
+	LCD1.clearALL();
+	update();
 }
 
 float starttime;
 float time;
+
+void v_showbutton()
+{
+	LCD1.show(V_Button[v_buttonshow - 1]);
+	v_buttonshow = 0;
+}
 
 void update()
 {
@@ -238,7 +279,16 @@ void update()
 void loop()
 {
 	//mode1();
-	anidigitdemo(LCD1);
+	//anidigitdemo(LCD1);
+
+	if (v_buttonshow)
+		v_showbutton();
+
+	update();
+	delay(2000);
+
+	LCD1.clearALL();
+
 
 }
 
