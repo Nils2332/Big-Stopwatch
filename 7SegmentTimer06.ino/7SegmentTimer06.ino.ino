@@ -259,7 +259,16 @@ float time;
 
 void v_showbutton()
 {
+	cRGB oldcolor;
+	oldcolor = LCD1.color[0];
+	if (v_buttonshow == 1)LCD1.setcolorhsv(0, 20, 1, 1);
+	if (v_buttonshow == 2)LCD1.setcolorhsv(0, 340, 1, 1);
 	LCD1.show(V_Button[v_buttonshow - 1]);
+	update();
+	delay(2000);
+	LCD1.clearALL();
+	update();
+	LCD1.setcolorrgb(0, oldcolor.r, oldcolor.g, oldcolor.b);
 	v_buttonshow = 0;
 }
 
