@@ -80,6 +80,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="LCD.h" />
     <ClInclude Include="modes.h" />
     <ClInclude Include="nRF905\src\nRF905.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="__vm\.7SegmentTimer06.ino.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="LCD.cpp" />
     <ClCompile Include="modes.cpp" />
     <ClCompile Include="nRF905\src\nRF905.cpp" />

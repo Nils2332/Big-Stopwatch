@@ -6,6 +6,7 @@
 #include "nRF905\src\nRF905.h"
 #include "LCD.h"
 #include "modes.h"
+#include "Debug.h"
 
 
 #define T6 33
@@ -33,9 +34,6 @@ uint8_t button_used = 0;
 double V_Bat1, V_Bat2;
 double V_Button[2];
 
-
-volatile int interruptCounter;
-int totalInterruptCounter;
 
 LEDLCD LCD1(0);
 
@@ -113,10 +111,10 @@ void IRAM_ATTR getRadio()
 			compare[1] = 67;
 			compare[2] = 75;
 			
-			for (uint8_t i = 0; i < NRF905_MAX_PAYLOAD; i++)
-				Serial.print(compare[i]);
+			//for (uint8_t i = 0; i < NRF905_MAX_PAYLOAD; i++)
+			//	Serial.print(compare[i]);
 
-			Serial.println(" ");
+			//Serial.println(" ");
 
 			if (id == 1)
 			{
@@ -144,17 +142,18 @@ void IRAM_ATTR updateDisplay()
 {
 	timerAlarmDisable(timer1);
 	timerAlarmDisable(timer2);
-	//timerAlarmDisable(timer3);
+	timerAlarmDisable(timer3);
 
 	LCD1.update();
 
 	timerAlarmEnable(timer1);
 	timerAlarmEnable(timer2);
-	//timerAlarmEnable(timer3);
+	timerAlarmEnable(timer3);
 }
 
 void setup()
 {
+	
 	//init Serial
 	Serial.begin(115200);
 
@@ -189,21 +188,26 @@ void setup()
 	nRF905_RX();
 
 
+	LCD1.init();
+
 	//Timer init
-	timer1 = timerBegin(0, 80, true);
+	//esp_task_wdt_fee
+
+	timer1 = timerBegin(1, 80, true);
 	timerAttachInterrupt(timer1, &getButtons, true);
 	timerAlarmWrite(timer1, 5000, true);
 	timerAlarmEnable(timer1);
 
-	timer2 = timerBegin(1, 80, true);
+	timer2 = timerBegin(2, 80, true);
 	timerAttachInterrupt(timer2, &getRadio, true);
-	timerAlarmWrite(timer2, 1000, true);
+	timerAlarmWrite(timer2, 5000, true);
 	timerAlarmEnable(timer2);
 
-	timer3 = timerBegin(2, 80, true);
-	timerAttachInterrupt(timer3, &getRadio, true);
-	timerAlarmWrite(timer3, 5000, true);
+	timer3 = timerBegin(3, 80, true);
+	timerAttachInterrupt(timer3, &updateDisplay, true);
+	timerAlarmWrite(timer3, 10000, true);
 	timerAlarmEnable(timer3);
+
 	//End timer
 
 
@@ -218,9 +222,24 @@ void setup()
 float starttime;
 float time;
 
+void update()
+{
+	timerAlarmDisable(timer1);
+	timerAlarmDisable(timer2);
+	timerAlarmDisable(timer3);
+
+	LCD1.writeLEDs();
+
+	timerAlarmEnable(timer1);
+	timerAlarmEnable(timer2);
+	timerAlarmEnable(timer3);
+}
+
 void loop()
 {
-	mode1();
+	//mode1();
+
+
 }
 
 void mode0()
@@ -235,99 +254,99 @@ float m1_break = 0;
 
 void mode1()
 {
-	//Start
-	if ((buttons == 1 && !button_used) || remotebutton == 1)
-	{
-		remotebutton = 0;
-		//Serial.println(buttons);
-		if (m1_mode == 2)
-		{
-			m1_break = m1_break + millis() / 1000 - m1_break_start;
-		}
+	////Start
+	//if ((buttons == 1 && !button_used) || remotebutton == 1)
+	//{
+	//	remotebutton = 0;
+	//	//Serial.println(buttons);
+	//	if (m1_mode == 2)
+	//	{
+	//		m1_break = m1_break + millis() / 1000 - m1_break_start;
+	//	}
 
-		if (m1_mode == 0)
-		{
-			LCD1.setZero();
-			starttime = millis() / 1000;
-			m1_break = 0;
-		}
-		button_used = 1;
-		m1_mode = 1;
+	//	if (m1_mode == 0)
+	//	{
+	//		LCD1.setZero();
+	//		starttime = millis() / 1000;
+	//		m1_break = 0;
+	//	}
+	//	button_used = 1;
+	//	m1_mode = 1;
 
-		oldtime = 0;
-	}
+	//	oldtime = 0;
+	//}
 
-	//Stop
-	if ((buttons == 2 && !button_used) || remotebutton == 2)
-	{
-		remotebutton = 0;
-		//Serial.println(buttons);
-		button_used = 1;
-		m1_mode = 2;
-		m1_break_start = millis() / 1000;
-		LCD1.anishow(time);
-		double hue = LCD1.hsv[0].H;
+	////Stop
+	//if ((buttons == 2 && !button_used) || remotebutton == 2)
+	//{
+	//	remotebutton = 0;
+	//	//Serial.println(buttons);
+	//	button_used = 1;
+	//	m1_mode = 2;
+	//	m1_break_start = millis() / 1000;
+	//	LCD1.anishow(time);
+	//	double hue = LCD1.hsv[0].H;
 
-		if (record == 0 || time < record)
-		{
-			timerAlarmDisable(timer1);
-			timerAlarmDisable(timer2);
-			timerAlarmDisable(timer3);
+	//	if (record == 0 || time < record)
+	//	{
+	//		timerAlarmDisable(timer1);
+	//		timerAlarmDisable(timer2);
+	//		timerAlarmDisable(timer3);
 
-			record = time;
-			for (long j = 0; j < 180; j++)
-			{
-				LCD1.setcolorhsv(0, ((long)(j * 2 + hue)) % 360, 1, 0.8);
-				//LCD1.show(time);
-				LCD1.show(time);
-				//digitalLeds_updatePixels(&pStrand);
-				delay(20);
-			}
+	//		record = time;
+	//		for (long j = 0; j < 180; j++)
+	//		{
+	//			LCD1.setcolorhsv(0, ((long)(j * 2 + hue)) % 360, 1, 0.8);
+	//			//LCD1.show(time);
+	//			LCD1.show(time);
+	//			//digitalLeds_updatePixels(&pStrand);
+	//			delay(20);
+	//		}
 
-			timerAlarmEnable(timer1);
-			timerAlarmEnable(timer2);
-			timerAlarmEnable(timer3);
-		}
-		LCD1.setcolorhsv(0, hue, 1, 0.8);
-		//oldtime = 0;
-	}
+	//		timerAlarmEnable(timer1);
+	//		timerAlarmEnable(timer2);
+	//		timerAlarmEnable(timer3);
+	//	}
+	//	LCD1.setcolorhsv(0, hue, 1, 0.8);
+	//	//oldtime = 0;
+	//}
 
-	//Reset
-	if (buttons == 4 && !button_used)
-	{
-		//Serial.println(buttons);
-		starttime = millis() / 1000;
-		button_used = 1;
-		m1_mode = 0;
-		LCD1.setZero();
-		oldtime = 0;
-	}
+	////Reset
+	//if (buttons == 4 && !button_used)
+	//{
+	//	//Serial.println(buttons);
+	//	starttime = millis() / 1000;
+	//	button_used = 1;
+	//	m1_mode = 0;
+	//	LCD1.setZero();
+	//	oldtime = 0;
+	//}
 
-	if (buttons == 8 && !button_used)
-	{
-		if (record != 0)
-			record = 0;
-	}
+	//if (buttons == 8 && !button_used)
+	//{
+	//	if (record != 0)
+	//		record = 0;
+	//}
 
-	//stop
-	if (m1_mode == 0)
-	{
+	////stop
+	//if (m1_mode == 0)
+	//{
 
-	}
+	//}
 
-	//run
-	if (m1_mode == 1)
-	{
-		time = (float)millis() / 1000 - starttime - m1_break;
-		if ((time - oldtime) >= 0.005)
-		{
-			//Serial.println(time);
-			LCD1.anishowcontinuous(time);
-			//LED.sync(); // Sends
-			//digitalLeds_updatePixels(&pStrand);
-			oldtime = time;
-		}
-	}
+	////run
+	//if (m1_mode == 1)
+	//{
+	//	time = (float)millis() / 1000 - starttime - m1_break;
+	//	if ((time - oldtime) >= 0.005)
+	//	{
+	//		//Serial.println(time);
+	//		LCD1.anishowcontinuous(time);
+	//		//LED.sync(); // Sends
+	//		//digitalLeds_updatePixels(&pStrand);
+	//		oldtime = time;
+	//	}
+	//}
 }
 
 void mode2()
