@@ -1,4 +1,6 @@
 #include "Debug.h"
+#include "LCD.h"
+#include "Arduino.h"
 
 
 
@@ -7,7 +9,20 @@ int fast = 3;
 const int wait = 7;
 const int repeats = 1000;
 
-void anidigitdemo()
+void update(LEDLCD LCD)
+{
+	//timerAlarmDisable(timer1);
+	//timerAlarmDisable(timer2);
+	//timerAlarmDisable(timer3);
+
+	LCD.writeLEDs();
+
+	//timerAlarmEnable(timer1);
+	//timerAlarmEnable(timer2);
+	//timerAlarmEnable(timer3);
+}
+
+void anidigitdemo(LEDLCD LCD)
 {
 	float Zahl;
 	for (uint16_t i = 0; i < 10300; i++)
@@ -15,41 +30,41 @@ void anidigitdemo()
 
 		Zahl = (float)i / 100;
 		Serial.println(Zahl);
-		LCD1.anishowcontinuous(Zahl, slow, fast);
-		update();
+		LCD.anishowcontinuous(Zahl, slow, fast);
+		update(LCD);
 		delay(wait);
 	}
 }
 
-void showdemo()
+void showdemo(LEDLCD LCD)
 {
-	LCD1.show(1.337);
+	LCD.show(1.337);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.show(13.37);
+		update(LCD), delay(wait);
+	LCD.show(13.37);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.show(133.7);
+		update(LCD), delay(wait);
+	LCD.show(133.7);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.show(1337);
+		update(LCD), delay(wait);
+	LCD.show(1337);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
+		update(LCD), delay(wait);
 }
 
 
-void anishowdemo()
+void anishowdemo(LEDLCD LCD)
 {
-	LCD1.anishow(1.337, slow, fast);
+	LCD.anishow(1.337, slow, fast);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.anishow(13.37, slow, fast);
+		update(LCD), delay(wait);
+	LCD.anishow(13.37, slow, fast);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.anishow(133.7, slow, fast);
+		update(LCD), delay(wait);
+	LCD.anishow(133.7, slow, fast);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
-	LCD1.anishow(1337, slow, fast);
+		update(LCD), delay(wait);
+	LCD.anishow(1337, slow, fast);
 	for (int i = 0; i < repeats; i++)
-		update(), delay(wait);
+		update(LCD), delay(wait);
 }

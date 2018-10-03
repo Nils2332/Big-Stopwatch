@@ -238,7 +238,7 @@ void update()
 void loop()
 {
 	//mode1();
-
+	anidigitdemo(LCD1);
 
 }
 
