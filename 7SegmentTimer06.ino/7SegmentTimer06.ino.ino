@@ -235,13 +235,16 @@ void setup()
 		V_Bat2 = V_Bat2 + voltages[1][i];
 	}
 
-	V_Bat1 = V_Bat1 / samples * 0.00298;
-	V_Bat2 = V_Bat2 / samples * 0.00541 - V_Bat1;
+	V_Bat1 = V_Bat1 / samples;
+	V_Bat2 = V_Bat2 / samples;
 
 	Serial.print("V1: \t");
 	Serial.println(V_Bat1);
 	Serial.print("V2: \t");
 	Serial.println(V_Bat2);
+
+	V_Bat1 = V_Bat1 * 0.0016414;
+	V_Bat2 = V_Bat2 * 0.0027313 - V_Bat1;
 
 	LCD1.show(V_Bat1);
 	update();
