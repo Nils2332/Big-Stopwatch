@@ -175,6 +175,12 @@ void LEDLCD::update()
 
 		if (animation == 2)
 			anidigits2(anistep);
+
+		if (animation == 3)
+			colorWheel(timescale, multiplier, anistep);
+
+		if (animation == 4)
+			fadeout(timescale, multiplier, anistep);
 	}
 }
 
@@ -213,10 +219,10 @@ void LEDLCD::setcolorhsv(uint8_t number, double h, double s, double v)
 
 void LEDLCD::show(float numberin)
 {
-	animation = 0;
 	clearALL();
 	getdigits(numberin);
 	printdigits();
+	animation = 0;
 }
 void LEDLCD::printdigits()
 {
@@ -235,21 +241,20 @@ void LEDLCD::printdigits()
 	toupdate = 1;
 }
 
-void LEDLCD::anishow(float numberin, uint8_t timescalein, uint8_t multiplierin)
+void LEDLCD::anishow(float numberin, uint16_t timescalein, uint8_t multiplierin)
 {
 	clearALL();
 	update();
 
 	timescale = timescalein;
 	multiplier = multiplierin;
-	number = numberin;
 	getdigits(numberin);
 	animation = 1;
 	anistep = 0;
 
 	anidigits(0);
 }
-void LEDLCD::anidigits(uint8_t step)	//decimal Dot, nextdot = refreshrate*timescale
+void LEDLCD::anidigits(uint32_t step)	//decimal Dot, nextdot = refreshrate*timescale
 {
 	anistep = step;
 	uint8_t a_digit, a_led;
@@ -279,7 +284,7 @@ void LEDLCD::anidigits(uint8_t step)	//decimal Dot, nextdot = refreshrate*timesc
 	}
 }
 
-void LEDLCD::anishowcontinuous(float numberin, uint8_t timescalein, uint8_t multiplierin)
+void LEDLCD::anishowcontinuous(float numberin, uint16_t timescalein, uint8_t multiplierin)
 {
 	if (numberin != lastnumber)
 	{
@@ -295,7 +300,7 @@ void LEDLCD::anishowcontinuous(float numberin, uint8_t timescalein, uint8_t mult
 			lastdigitvalue[i] = digitvalue[i];
 	}
 }
-void LEDLCD::anidigits2(uint8_t step)
+void LEDLCD::anidigits2(uint32_t step)
 {
 	anistep = step;
 	
@@ -371,18 +376,17 @@ void LEDLCD::setZero()
 	{
 		digitvalue[i] = 0;
 		clear(i);
-		value.r = 0;
-		value.g = 0;
-		value.b = 255;
 
 		for (uint8_t j = 0; j < aninumberlenght[digitvalue[i]]; j++)
-			print(lightpoints[i][digitvalue[i]][j], value);
+			print(lightpoints[i][digitvalue[i]][j], color[0]);
 	}
 	toupdate = 1;
 }
 
-void LEDLCD::getdigits(float number)
+void LEDLCD::getdigits(float numberin)
 {
+	number = numberin;
+
 	if (0 <= number && number < 10)
 	{
 		digitvalue[0] = (int)number;
@@ -430,12 +434,85 @@ void LEDLCD::setLEDHSV(uint16_t number, double h, double s, double v)
 
 }
 
-void LEDLCD::colorWheel(uint8_t timescale, uint8_t devider = 1)
+void LEDLCD::colorWheel(uint16_t timescalein, uint8_t multiplierin, uint32_t step)
 {
-	animation = 0;
+	if (step == 0)
+	{
+		color[2] = color[0];
+		hsv[2] = hsv[0];
+		anistep = step;
+		timescale = timescalein;
+		multiplier = multiplierin;
+		animation = 3;
+	}
+
+	Serial.println(anistep%timescale);
+
+	if (anistep%timescale == 0)
+	{
+		for (uint8_t i = 0; i < multiplier; i++)
+			setcolorhsv(0, (uint16_t)(hsv[0].H + 1) % 360, hsv[0].S, hsv[0].V);
+		show(number);
+		animation = 3;
+
+		for (uint8_t i = 1; i < multiplier; i++)
+			anistep++;
+	}
+
+
+	anistep++;
+	//Serial.println(anistep);
+
+	if (anistep / timescale >= 360)
+	{
+		color[0] = color[2];
+		hsv[0] = hsv[2];
+		show(number);
+		Serial.println("exit1");
+	}
+	toupdate = 1;
+
 }
 
-void LEDLCD::fadeout(uint8_t timescale, uint8_t devider = 1)
+void LEDLCD::fadeout(uint16_t timescalein, uint8_t multiplierin, uint32_t step)
 {
-	animation = 0;
+	if (step == 0)
+	{
+		color[2] = color[0];
+		hsv[2] = hsv[0];
+		color[3] = color[1];
+		hsv[3] = hsv[1];
+		anistep = step;
+		timescale = timescalein;
+		multiplier = multiplierin;
+		animation = 4;
+	}
+
+
+	anistep++;
+
+	//Serial.println(anistep);
+
+	if (anistep%timescale == 0)
+	{
+		for (uint8_t i = 0; i < multiplier; i++)
+		{
+			setcolorhsv(0, hsv[0].H, hsv[0].S, hsv[0].V - ((float)1 / (timescale * 100)));
+			setcolorhsv(1, hsv[1].H, hsv[1].S, hsv[1].V - ((float)1 / (timescale * 100)));
+		}
+		show(number);
+		animation = 4;
+	}
+
+	if (hsv[0].V <= 0.01)
+	{
+		color[0] = color[2];
+		hsv[0] = hsv[2];
+		color[1] = color[3];
+		hsv[1] = hsv[3];
+		clearALL();
+		animation = 0;
+		Serial.println("exit2");
+	}
+	toupdate = 1;
 }

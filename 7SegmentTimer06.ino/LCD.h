@@ -37,10 +37,10 @@ class LEDLCD
 	uint16_t animationstep[digits] = { 0 };
 	
 
-	uint8_t animation = 0;
-	uint8_t anistep = 0;
+
+	uint32_t anistep = 0;
 	uint8_t multiplier;
-	uint8_t timescale = 1;
+	uint16_t timescale = 1;
 	float number;
 	uint8_t decimaldot;
 
@@ -69,6 +69,7 @@ class LEDLCD
 
 public:
 
+	uint8_t animation = 0;
 	cRGB color[5];
 	cHSV hsv[5];
 	uint8_t toupdate = 0;
@@ -88,22 +89,22 @@ public:
 	void setLEDHSV(uint16_t number, double h, double s, double v);
 
 	void show(float numberin);
-	void anishow(float numberin, uint8_t timescale, uint8_t multiplier);
-	void anishowcontinuous(float numberin, uint8_t timescale, uint8_t multiplier);
+	void anishow(float numberin, uint16_t timescalein, uint8_t multiplierin);
+	void anishowcontinuous(float numberin, uint16_t timescalein, uint8_t multiplierin);
 
 	void clearALL();
 
 	void setZero();
 	//TODO
-	void colorWheel(uint8_t timescale, uint8_t devider);
+	void colorWheel(uint16_t timescalein, uint8_t multiplierin = 1, uint32_t step = 0);
 	//TODO
-	void fadeout(uint8_t timescale, uint8_t devider);
+	void fadeout(uint16_t timescalein, uint8_t multiplierin = 1, uint32_t step = 0);
 
 private:
 
 	void printdigits();
-	void anidigits(uint8_t step);
-	void anidigits2(uint8_t step);
+	void anidigits(uint32_t step);
+	void anidigits2(uint32_t step);
 
 	void clear(uint8_t digit);
 
