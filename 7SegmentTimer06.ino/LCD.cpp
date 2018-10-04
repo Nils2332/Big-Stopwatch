@@ -446,7 +446,6 @@ void LEDLCD::colorWheel(uint16_t timescalein, uint8_t multiplierin, uint32_t ste
 		animation = 3;
 	}
 
-	Serial.println(anistep%timescale);
 
 	if (anistep%timescale == 0)
 	{
@@ -461,7 +460,7 @@ void LEDLCD::colorWheel(uint16_t timescalein, uint8_t multiplierin, uint32_t ste
 
 
 	anistep++;
-	//Serial.println(anistep);
+	Serial.println(anistep);
 
 	if (anistep / timescale >= 360)
 	{
@@ -504,7 +503,7 @@ void LEDLCD::fadeout(uint16_t timescalein, uint8_t multiplierin, uint32_t step)
 		animation = 4;
 	}
 
-	if (hsv[0].V <= 0.01)
+	if (hsv[0].V <= 0.02)
 	{
 		color[0] = color[2];
 		hsv[0] = hsv[2];
