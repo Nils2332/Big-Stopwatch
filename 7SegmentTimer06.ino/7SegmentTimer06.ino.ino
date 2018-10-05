@@ -34,6 +34,13 @@ uint8_t button_used = 0;
 double V_Bat1, V_Bat2;
 double V_Button[2];
 
+uint8_t V_Batlow = 0;
+uint32_t oldtime_V = 0;
+
+uint8_t remotereset = 0;
+uint32_t remotedelay[2];
+uint32_t remotecounter = 0;
+
 
 LEDLCD LCD1(0);
 
@@ -74,6 +81,10 @@ void IRAM_ATTR getButtons()
 void IRAM_ATTR getRadio()
 {
 
+	remotecounter++;
+
+	if (remotecounter > 300)
+		remotereset = 0;
 	//timerAlarmDisable(timer1);
 	//timerAlarmDisable(timer2);
 	//timerAlarmDisable(timer3);
@@ -110,9 +121,17 @@ void IRAM_ATTR getRadio()
 				timer = ((uint16_t)(buffer[3] << 8) | (buffer[4]));
 				Serial.print("Delay: ");
 				Serial.println(timer);
+				remotedelay[id - 1] = timer;
 				remotebutton = 1 << (id - 1);
 				Serial.println(buttons);
 				button_used = 0;
+
+				if (id == 1)
+				{
+					remotecounter = 0;
+					remotereset ++;
+					Serial.println(remotereset);
+				}
 			}
 
 			//ACK Packet
@@ -185,8 +204,8 @@ void setup()
 	digitalWrite(T6, HIGH);
 	//end Buttons
 
+	//radio Avaiable PIN
 	pinMode(17, INPUT);
-
 
 	// Start up radio
 	nRF905_init();
@@ -226,20 +245,16 @@ void setup()
 	Serial.println("7-Segment-Counter-Start");
 
 	LCD1.setcolorhsv(0, 240, 1, 0.8);
-	LCD1.setcolorrgb(1, 0, 255, 0);
+	LCD1.setcolorhsv(1, 120, 1, 1);
 
 	LCD1.clearALL();
 
 	uint8_t samples = 10;
-	uint16_t voltages[2][10] = { 0 };
-	V_Bat1 = 0;
-	V_Bat2 = 0;
+	V_Bat1 = 0, V_Bat2 = 0;
 	for (uint8_t i = 0; i < samples; i++)
 	{
-		voltages[0][i] = analogRead(Batpin1);
-		voltages[1][i] = analogRead(Batpin2);
-		V_Bat1 = V_Bat1 + voltages[0][i];
-		V_Bat2 = V_Bat2 + voltages[1][i];
+		V_Bat1 = V_Bat1 + analogRead(Batpin1);
+		V_Bat2 = V_Bat2 + analogRead(Batpin2);
 	}
 
 	V_Bat1 = V_Bat1 / samples;
@@ -260,8 +275,6 @@ void setup()
 	update();
 	//delay(2000);
 
-	//LCD1.clearALL();
-	//update();
 }
 
 float starttime;
@@ -284,32 +297,69 @@ void v_showbutton()
 
 void update()
 {
-	//timerAlarmDisable(timer1);
-	//timerAlarmDisable(timer2);
-	//timerAlarmDisable(timer3);
+	timerAlarmDisable(timer1);
+	timerAlarmDisable(timer2);
+	timerAlarmDisable(timer3);
 
 	LCD1.update();
 	LCD1.writeLEDs();
 	sleepcounter++;
 
-	//timerAlarmEnable(timer1);
-	//timerAlarmEnable(timer2);
-	//timerAlarmEnable(timer3);
+	timerAlarmEnable(timer1);
+	timerAlarmEnable(timer2);
+	timerAlarmEnable(timer3);
 }
 
+void checkbat()
+{
+	uint8_t samples = 10;
+	V_Bat1 = 0, V_Bat2 = 0;
+	for (uint8_t i = 0; i < samples; i++)
+	{
+		V_Bat1 = V_Bat1 + analogRead(Batpin1);
+		V_Bat2 = V_Bat2 + analogRead(Batpin2);
+	}
+	V_Bat1 = V_Bat1 / samples;
+	V_Bat2 = V_Bat2 / samples;
 
+	V_Bat1 = V_Bat1 * 0.0016414;
+	V_Bat2 = V_Bat2 * 0.0027313 - V_Bat1;
 
+	Serial.print("V1: \t");
+	Serial.println(V_Bat1);
+	Serial.print("V2: \t");
+	Serial.println(V_Bat2);
+
+	float lowbat = 3.2;
+
+	if ((V_Bat1 < lowbat) || (V_Bat2 < lowbat))
+	{
+		V_Batlow = 1;
+		LCD1.setcolorhsv(0, 0, 1, 5);
+		LCD1.show(min(V_Bat1, V_Bat2));
+		sleepcounter = 0;
+		sleeping = 0;
+	}
+}
 void loop()
 {
+	if (!V_Batlow)
+	{
+		if (millis() - oldtime_V > 10000)
+			oldtime_V = millis(), checkbat();// Serial.println("up");
+
+		if (v_buttonshow)
+			v_showbutton();
+
+		if(LCD1.animation!=4)
+			mode1();
+	}
+
+	if ((sleepcounter > 300 && !sleeping) && !LCD1.animation)
+		LCD1.fadeout(1, 1), sleeping = 1;
+
 	if (millis() - oldtime_l > 10)
 		oldtime_l = millis(), update();// Serial.println("up");
-
-	if (v_buttonshow)
-		v_showbutton();
-
-	if ((sleepcounter > 300 && !sleeping)  && !LCD1.animation)
-		LCD1.fadeout(1,1), sleeping = 1;
-	mode1();
 
 }
 
@@ -325,6 +375,14 @@ float m1_break = 0;
 
 void mode1()
 {
+	if (remotereset >= 5)
+	{
+		m1_mode = 0;
+		LCD1.setZero();
+		delay(300);
+		remotebutton = 0;
+	}
+
 	if (recordset)
 	{
 		if (!LCD1.animation)
@@ -336,16 +394,13 @@ void mode1()
 	{
 		sleeping = 0;
 		remotebutton = 0;
-		//Serial.println(buttons);
 		if (m1_mode == 2)
-		{
 			m1_break = m1_break + millis() / 1000 - m1_break_start;
-		}
 
 		if (m1_mode == 0)
 		{
 			LCD1.setZero();
-			starttime = millis() / 1000;
+			starttime = (millis()-remotedelay[0]) / 1000;
 			m1_break = 0;
 		}
 		button_used = 1;
@@ -357,11 +412,11 @@ void mode1()
 	//Stop
 	if ((buttons == 2 && !button_used) || remotebutton == 2)
 	{
+		sleeping = 0;
 		remotebutton = 0;
-		//Serial.println(buttons);
 		button_used = 1;
-		m1_mode = 2;
-		m1_break_start = millis() / 1000;
+		m1_mode = 0;
+		m1_break_start = (millis()-remotedelay[1]) / 1000;
 		LCD1.anishow(time, 1, 1);
 
 		if (record == 0 || time < record)
@@ -373,7 +428,7 @@ void mode1()
 	//Reset
 	if (buttons == 4 && !button_used)
 	{
-		//Serial.println(buttons);
+		sleeping = 0;
 		starttime = millis() / 1000;
 		button_used = 1;
 		m1_mode = 0;
@@ -405,6 +460,17 @@ void mode1()
 			LCD1.anishowcontinuous(time, 1, 2);
 			oldtime = time;
 		}
+	}
+
+	if (buttons == 32 && !button_used)
+	{
+		button_used = 1;
+		LCD1.setcolorhsv(0, LCD1.hsv[0].H + 30, LCD1.hsv[0].S, LCD1.hsv[0].V);
+		Serial.print("newHue: "), Serial.println(LCD1.hsv[0].H);
+		delay(300);
+		sleepcounter = 0;
+		sleeping = 0;
+		LCD1.show(13.37);
 	}
 }
 

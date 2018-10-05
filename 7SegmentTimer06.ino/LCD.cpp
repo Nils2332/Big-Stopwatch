@@ -209,6 +209,7 @@ void LEDLCD::setcolorrgb(uint8_t number, uint8_t r, uint8_t g, uint8_t b)
 }
 void LEDLCD::setcolorhsv(uint8_t number, double h, double s, double v)
 {
+	h = (long)h % 360;
 	color[number] = HSVToRGB(h, s, v);
 
 	hsv[number].H = h;
@@ -372,6 +373,7 @@ void LEDLCD::setZero()
 {
 	animation = 0;
 	lastnumber = 0;
+	number = 0;
 	for (uint8_t i = 0; i < digits; i++)
 	{
 		digitvalue[i] = 0;
@@ -460,7 +462,7 @@ void LEDLCD::colorWheel(uint16_t timescalein, uint8_t multiplierin, uint32_t ste
 
 
 	anistep++;
-	Serial.println(anistep);
+	//Serial.println(anistep);
 
 	if (anistep / timescale >= 360)
 	{
