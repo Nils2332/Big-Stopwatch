@@ -417,6 +417,7 @@ void mode1()
 		button_used = 1;
 		m1_mode = 0;
 		m1_break_start = (millis()-remotedelay[1]) / 1000;
+		time = time - (remotedelay[1] / 1000);
 		LCD1.anishow(time, 1, 1);
 
 		if (record == 0 || time < record)
