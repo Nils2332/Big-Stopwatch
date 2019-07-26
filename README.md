@@ -1,6 +1,6 @@
-# Project Title
+# Big-3D-Printed-Stopwatch
 
-One Paragraph of project description goes here
+A simple 4 digit stopwatch triggered by 2 remote Buttons
 
 ## Getting Started
 
