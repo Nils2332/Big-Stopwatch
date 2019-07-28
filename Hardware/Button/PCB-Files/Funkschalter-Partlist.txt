@@ -1,0 +1,56 @@
+Partlist
+
+Exported from Funkschalter1V0.1.sch at 01.06.2018 23:58
+
+EAGLE Version 9.0.0 Copyright (c) 1988-2018 Autodesk, Inc.
+
+Assembly variant: 
+
+Part     Value             Device            Package     Library     Sheet
+
+BAT1+    TPTP20R           TPTP20R           TP20R       testpad     1
+BAT1-    TPTP20R           TPTP20R           TP20R       testpad     1
+BAT2+    TPTP20R           TPTP20R           TP20R       testpad     1
+BAT2-    TPTP20R           TPTP20R           TP20R       testpad     1
+C1       0.1uF             C-EUC0603         C0603       rcl         1
+C2       0.1uF             C-EUC0603         C0603       rcl         1
+C3       10nF              C-EUC0603         C0603       rcl         1
+C4       4,7uF             C-EUC0603         C0603       rcl         1
+C6       4,7uF             C-EUC0603         C0603       rcl         1
+C19      10nF              C-EUC0603         C0603       rcl         1
+C20      4.7uF             C-EUC0603         C0603       rcl         1
+C21      22pF              C-EUC0603         C0603       rcl         1
+C22      22pF              C-EUC0603         C0603       rcl         1
+C23      33pF              C-EUC0603         C0603       rcl         1
+C24      3.3nF             C-EUC0603         C0603       rcl         1
+C25      33pF              C-EUC0603         C0603       rcl         1
+C26      33pF              C-EUC0603         C0603       rcl         1
+C27      10nF              C-EUC0603         C0603       rcl         1
+C28      33pF              C-EUC0603         C0603       rcl         1
+C29      5.6pF             C-EUC0603         C0603       rcl         1
+C30      4.7pF             C-EUC0603         C0603       rcl         1
+C31      3.9pF             C-EUC0603         C0603       rcl         1
+IC1      nRF905            NRF905QFN32_5X5MM QFN32-5X5MM nordic-semi 1
+Q1       X322516MRB4SI     XTAL-4-3225       NX3225      adafruit    1
+R1       10k               R-EU_R0603        R0603       rcl         1
+R2       1M                R-EU_R0603        R0603       rcl         1
+R3       22k               R-EU_R0603        R0603       rcl         1
+R4       10k               R-EU_R0603        R0603       rcl         1
+R5       0                 R-EU_R0603        R0603       rcl         1
+R6       20k               R-EU_R0603        R0603       rcl         1
+R7       100k              R-EU_R0603        R0603       rcl         1
+R8       200k              R-EU_R0603        R0603       rcl         1
+R9       18k               R-EU_R0603        R0603       rcl         1
+R10      0                 R-EU_R0603        R0603       rcl         1
+ST-LINK  B5B-ZR            B5B-ZR            B5B-ZR      jst         1
+SW1      K2-6639SP-C4SC-04 SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW2      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW3      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW4      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW5      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW6      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW7      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW8      TS                SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+SW9      SPST_TACT-EVQQ2   SPST_TACT-EVQQ2   EVQ-Q2      adafruit    1
+U$1      STM32F030F4       STM32F030F4       TSSOP20     stm32f030f4 1
+UART     B4B-ZR            B4B-ZR            B4B-ZR      jst         1
