@@ -469,7 +469,7 @@ void LEDLCD::colorWheel(uint16_t timescalein, uint8_t multiplierin, uint32_t ste
 		color[0] = color[2];
 		hsv[0] = hsv[2];
 		show(number);
-		Serial.println("exit1");
+		//Serial.println("exit1");
 	}
 	toupdate = 1;
 
@@ -513,7 +513,7 @@ void LEDLCD::fadeout(uint16_t timescalein, uint8_t multiplierin, uint32_t step)
 		hsv[1] = hsv[3];
 		clearALL();
 		animation = 0;
-		Serial.println("exit2");
+		//Serial.println("exit2");
 	}
 	toupdate = 1;
 }

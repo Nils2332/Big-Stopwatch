@@ -77,13 +77,15 @@ void IRAM_ATTR getButtons()
 	//Serial.println(buttons);
 }
 
+
+uint8_t oldpacket[2] = {};
 //timer2
 void IRAM_ATTR getRadio()
 {
 
 	remotecounter++;
 
-	if (remotecounter > 300)
+	if (remotecounter > 350)
 		remotereset = 0;
 	//timerAlarmDisable(timer1);
 	//timerAlarmDisable(timer2);
@@ -91,7 +93,7 @@ void IRAM_ATTR getRadio()
 
 	if (digitalRead(17))
 	{
-		Serial.println("Get Wireless");
+		Serial.print("Get Wireless: ");
 		uint8_t buffer[NRF905_MAX_PAYLOAD];
 		nRF905_read(buffer, sizeof(buffer));
 
@@ -99,11 +101,17 @@ void IRAM_ATTR getRadio()
 		uint8_t command;
 		uint16_t timer;
 
+		uint8_t packet;
+		
+
 		if (buffer[0] == 130)
 		{
 			id = buffer[1];
 			command = buffer[2];
+			packet = buffer[5];
 
+			Serial.print(id);
+			Serial.print("\t Packet: "), Serial.print(packet);
 			//Voltage
 			if (command == 1)
 			{
@@ -113,24 +121,33 @@ void IRAM_ATTR getRadio()
 
 				v_buttonshow = id;
 
-				Serial.println(V_Button[id - 1]);
+				
+				Serial.print("\t V: "), Serial.print(V_Button[id - 1]);
+
+				oldpacket[id - 1] = packet;
 			}
 			//Button Pressed
 			if (command == 2)
 			{
-				timer = ((uint16_t)(buffer[3] << 8) | (buffer[4]));
-				Serial.print("Delay: ");
-				Serial.println(timer);
-				remotedelay[id - 1] = timer;
-				remotebutton = 1 << (id - 1);
-				Serial.println(buttons);
-				button_used = 0;
-
-				if (id == 1)
+				if (packet != oldpacket[id - 1])
 				{
-					remotecounter = 0;
-					remotereset ++;
-					Serial.println(remotereset);
+
+					timer = ((uint16_t)(buffer[3] << 8) | (buffer[4]));
+					Serial.print("\t Delay: ");
+					Serial.print(timer);
+					remotedelay[id - 1] = timer;
+					remotebutton = 1 << (id - 1);
+					//Serial.println(buttons);
+					button_used = 0;
+
+					if (id == 1)
+					{
+						remotecounter = 0;
+						remotereset++;
+						Serial.print("\t Res#: "), Serial.print(remotereset);
+					}
+
+					oldpacket[id - 1] = packet;
 				}
 			}
 
@@ -148,15 +165,15 @@ void IRAM_ATTR getRadio()
 
 			if (id == 1)
 			{
-				Serial.print("Sending ACK:");
-				Serial.println(id);
+				Serial.println("\t Sending ACK");
+				//Serial.println(id);
 				while (!nRF905_TX(TX1ADDR, compare, sizeof(buffer), NRF905_NEXTMODE_RX));
 			}
 
 			if (id == 2)
 			{
-				Serial.print("Sending ACK:");
-				Serial.println(id);
+				Serial.println("\t Sending ACK");
+				//Serial.println(id);
 				while (!nRF905_TX(TX2ADDR, compare, sizeof(buffer), NRF905_NEXTMODE_RX));
 			}
 		}
@@ -244,7 +261,7 @@ void setup()
 
 	Serial.println("7-Segment-Counter-Start");
 
-	LCD1.setcolorhsv(0, 240, 1, 0.8);
+	LCD1.setcolorhsv(0, 240, 1, 1);
 	LCD1.setcolorhsv(1, 120, 1, 1);
 
 	LCD1.clearALL();
@@ -284,8 +301,8 @@ void v_showbutton()
 {
 	cHSV oldcolor;
 	oldcolor = LCD1.hsv[0];
-	if (v_buttonshow == 1)LCD1.setcolorhsv(0, 20, 1, 1);
-	if (v_buttonshow == 2)LCD1.setcolorhsv(0, 340, 1, 1);
+	if (v_buttonshow == 1)LCD1.setcolorhsv(0, 110, 1, 1);
+	if (v_buttonshow == 2)LCD1.setcolorhsv(0, 350, 1, 1);
 	LCD1.show(V_Button[v_buttonshow - 1]);
 	update();
 	delay(2000);
@@ -326,8 +343,8 @@ void checkbat()
 	V_Bat2 = V_Bat2 * 0.0027313 - V_Bat1;
 
 	Serial.print("V1: \t");
-	Serial.println(V_Bat1);
-	Serial.print("V2: \t");
+	Serial.print(V_Bat1);
+	Serial.print("\t\tV2: \t");
 	Serial.println(V_Bat2);
 
 	float lowbat = 3.2;
@@ -372,10 +389,11 @@ uint8_t m1_mode = 0;
 float m1_break_start;
 float m1_break_stop;
 float m1_break = 0;
+float endtime = 0;
 
 void mode1()
 {
-	if (remotereset >= 5)
+	if (remotereset >= 3)
 	{
 		m1_mode = 0;
 		LCD1.setZero();
@@ -394,13 +412,11 @@ void mode1()
 	{
 		sleeping = 0;
 		remotebutton = 0;
-		if (m1_mode == 2)
-			m1_break = m1_break + millis() / 1000 - m1_break_start;
 
 		if (m1_mode == 0)
 		{
+			starttime = (float)(millis() - remotedelay[0]) / 1000;
 			LCD1.setZero();
-			starttime = (millis()-remotedelay[0]) / 1000;
 			m1_break = 0;
 		}
 		button_used = 1;
@@ -410,18 +426,18 @@ void mode1()
 	}
 
 	//Stop
-	if ((buttons == 2 && !button_used) || remotebutton == 2)
+	if (((buttons == 2 && !button_used) || remotebutton == 2) && m1_mode == 1)
 	{
 		sleeping = 0;
 		remotebutton = 0;
 		button_used = 1;
 		m1_mode = 0;
-		m1_break_start = (millis()-remotedelay[1]) / 1000;
-		time = time - (remotedelay[1] / 1000);
-		LCD1.anishow(time, 1, 1);
+		endtime = (float)(millis()-remotedelay[1]) / 1000 - starttime;
+		//time = time - (remotedelay[1] / 1000);
+		LCD1.anishow(endtime, 1, 1);
 
-		if (record == 0 || time < record)
-			recordset = 1, record = time;
+		if (record == 0 || endtime < record)
+			recordset = 1, record = endtime;
 		
 		//oldtime = 0;
 	}
@@ -454,7 +470,7 @@ void mode1()
 	{
 		sleepcounter = 0;
 
-		time = (float)millis() / 1000 - starttime - m1_break;
+		time = (float)millis() / 1000 - starttime;
 		if ((time - oldtime) >= 0.01)
 		{
 			//Serial.println(time);
