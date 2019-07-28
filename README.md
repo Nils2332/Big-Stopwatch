@@ -7,7 +7,7 @@ A simple 4 digit stopwatch triggered by 2 remote Buttons
 Overview
 ![Main Body](https://github.com/Nils2332/Big-Stopwatch/blob/master/Pictures/7-Segment-Case.gif)
 Exploded Animation of the Main-Body
-![Animation Demo](https://github.com/Nils2332/Big-Stopwatch/blob/master/Pictures/7-Segment-Demo.gif)__
+![Animation Demo](https://github.com/Nils2332/Big-Stopwatch/blob/master/Pictures/7-Segment-Demo.gif)<br />
 Demo of the running anmimation and rainbow highscore sign
 ## Built With
 Counter powered by an ESP32 for future Extension with an Bluetooth App and more Functionalety.__
